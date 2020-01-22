@@ -14,7 +14,6 @@ from os import getenv
 import sqlalchemy as db
 
 
-
 class DBStorage:
     """
     This class is the database storage engine
