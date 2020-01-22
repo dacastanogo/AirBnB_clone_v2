@@ -71,3 +71,7 @@ class FileStorage:
             if check in self.__objects:
                 del self.__objects[check]
             self.save()
+
+    def close(self):
+        """Thread specific storage"""
+        self.reload()
