@@ -28,11 +28,11 @@ class FileStorage:
         if cls is None:
             return self.__objects
         else:
-            dic = dict()
+            objs_by_class = {}
             for key, value in self.__objects.items():
-                if key.split(".")[0] == cls.__name__:
-                    dic[key] = value
-            return (dic)
+                if cls.__name__ in key:
+                    objs_by_class[key] = value
+            return objs_by_class
 
     def new(self, obj):
         """sets __object to given obj
@@ -63,15 +63,27 @@ class FileStorage:
         except FileNotFoundError:
             pass
 
-    def delete(self, obj=None):
-        """delete obj from __objects if its inside
-        """
-        if obj:
-            check = ".".join([type(obj).__name__, obj.id])
-            if check in self.__objects:
-                del self.__objects[check]
-            self.save()
-
     def close(self):
-        """Thread specific storage"""
-        self.reload()
+        """ method for deserializing the JSON file to objects"""
+        return self.reload()
+
+    def delete(self, obj=None):
+        """
+        to delete obj from __objects if it’s inside
+        Args:
+            obj: object that its going to be deleted
+        Returns:
+        """
+        if obj is not None:
+            obj_id = obj.id
+            obj_class = obj.__class__.__name__
+            key = obj_class + '.' + obj_id
+            try:
+                objects = self.__objects
+                if key in objects:
+                    del objects[key]
+                    self.save()
+                else:
+                    raise KeyError()
+            except KeyError:
+                print("** no instance found **")

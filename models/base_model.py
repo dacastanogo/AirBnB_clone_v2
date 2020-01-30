@@ -15,9 +15,9 @@ class BaseModel:
     for other classes
     """
 
-    id = Column(String(60), primary_key=True, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow(), nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow(), nullable=False)
+    id = Column(String(60), unique=True, nullable=False, primary_key=True)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow())
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow())
 
     def __init__(self, *args, **kwargs):
         """Instantiation of base model class
@@ -35,9 +35,12 @@ class BaseModel:
                     value = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f")
                 if key != "__class__":
                     setattr(self, key, value)
-        if 'id' not in kwargs.keys():
+                if self.id is None:
+                    self.id = str(uuid.uuid4())
+                    self.created_at = self.updated_at = datetime.now()
+
+        else:
             self.id = str(uuid.uuid4())
-        if 'created_at' not in kwargs.keys():
             self.created_at = self.updated_at = datetime.now()
 
     def __str__(self):
@@ -46,10 +49,10 @@ class BaseModel:
             returns a string of class name, id, and dictionary
         """
         return "[{}] ({}) {}".format(
-            type(self).__name__, self.id, self.to_dict())
+            type(self).__name__, self.id, self.__dict__)
 
     def __repr__(self):
-        """return a string representaion
+        """return a string representation
         """
         return self.__str__()
 
@@ -61,7 +64,7 @@ class BaseModel:
         models.storage.save()
 
     def to_dict(self):
-        """creates dictionary of the class  and returns
+        """creates dictionary of the class and returns
         Return:
             returns a dictionary of all the key values in __dict__
         """
@@ -69,12 +72,12 @@ class BaseModel:
         my_dict["__class__"] = str(type(self).__name__)
         my_dict["created_at"] = self.created_at.isoformat()
         my_dict["updated_at"] = self.updated_at.isoformat()
-        if "_sa_instance_state" in my_dict:
+        try:
             del my_dict["_sa_instance_state"]
+        except:
+            pass
         return my_dict
 
     def delete(self):
-        """
-        delete storage
-        """
-        models.storage.delete()
+        """delete the current instance from storage"""
+        models.storage.delete(self)

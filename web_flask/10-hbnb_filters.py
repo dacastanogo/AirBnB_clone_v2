@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Minimal flask app"""
+"""Flask minimal application"""
 import re
 from flask import Flask
 from flask import render_template
@@ -44,6 +44,14 @@ def states_by_id(id=None):
             x = state
             return render_template('9-states.html', states_id=x)
     return render_template('9-states.html')
+
+
+@app.route('/hbnb_filters', strict_slashes=False)
+def filters():
+    all_states = storage.all('State')
+    all_amenities = storage.all('Amenity')
+    return render_template('10-hbnb_filters.html',
+                           states=all_states, amenities=all_amenities)
 
 
 if __name__ == '__main__':
