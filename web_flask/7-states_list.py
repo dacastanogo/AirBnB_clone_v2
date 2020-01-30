@@ -16,11 +16,9 @@ def closedb(foo):
 @app.route('/states_list', strict_slashes=False)
 def states_list():
     """Route /states_list"""
-    states = list(storage.all(State).values())
-    states.sort(key=lambda state: state.name)
-    return render_template('7-states_list.html', states=states)
+    all_states = storage.all('State')
+    return render_template('7-states_list.html', states=all_states)
 
 
 if __name__ == '__main__':
-    storage.reload()
-    app.run("0.0.0.0", 5000)
+    app.run()
